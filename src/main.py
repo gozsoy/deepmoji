@@ -6,8 +6,14 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Embedding,StringLookup
 from tensorflow.keras.initializers import Constant
+from tensorflow.keras.losses import SparseCategoricalCrossentropy, \
+                                     BinaryCrossentropy
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, \
+                                        ModelCheckpoint, TensorBoard
 
-from utils import load_config,get_corpus, set_device, set_seeds
+from utils import get_data_loader, load_config
+from utils import get_model, get_corpus, get_optimizer
+from utils import set_device, set_seeds
 
 
 def prepare_embeddings(cfg):
@@ -51,7 +57,28 @@ def prepare_embeddings(cfg):
     return lookup_layer,embedding_layer,(hits,misses,missed_words)
 
 def train(cfg):
-    print(info)
+    
+    train_ds = get_data_loader(cfg,split=0)
+    #valid_ds = get_data_loader(cfg,split=1)
+
+    model = get_model(cfg,lookup_layer,embedding_layer)
+    optimizer = get_optimizer(cfg)
+    loss = BinaryCrossentropy(from_logits=True)
+
+
+    #early_stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=2)
+    #lr_scheduler = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=3, verbose=1)
+    #checkpointer = ModelCheckpoint(filepath='../checkpoints/'+dataset+'/'+experiment_name, monitor='val_loss', verbose=1, save_best_only=True)
+    tensorboard = TensorBoard(log_dir='../logs/'+cfg['dataset']+'/'+cfg['experiment_name'], write_images=True)
+
+    model.compile(optimizer=optimizer, loss=loss, metrics='accuracy')
+
+    model.fit(x = train_ds, epochs=cfg['n_epochs'], verbose=2, shuffle=True,
+              callbacks=[tensorboard], validation_split=0.0)
+
+    #model.load_weights('../checkpoints/'+dataset+'/'+experiment_name)  # load the best model
+    model.evaluate(x=train_ds) # needs to be fixed
+
     return
 
 
@@ -67,6 +94,7 @@ if __name__ == '__main__':
     set_device(cfg)
 
     lookup_layer,embedding_layer,info = prepare_embeddings(cfg)
+    print(f'hits: {info[0]}, misses: {info[1]}')
 
     train(cfg)
 

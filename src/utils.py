@@ -1,3 +1,6 @@
+from parso import split_lines
+from torch import ge
+from transformers import KerasMetricCallback
 import yaml
 import os
 import pandas as pd
@@ -6,21 +9,13 @@ import numpy as np
 import random
 
 from model import DeepmojiNet
+from dataset import get_data_loader_
 
 def load_config(args):
 
     with open(args.config, "r") as f:
         cfg = yaml.safe_load(f)
     return cfg
-
-
-def get_data_loader(cfg, split):
-    if cfg['dataset'] == "h36m":
-        selected_dataset = None
-    else:
-        raise NotImplementedError('dataset not implemented')
-
-    return 
 
 def set_seeds(cfg):
     seed = cfg['seed']
@@ -35,7 +30,11 @@ def set_device(cfg):
         tf.config.set_visible_devices([], 'GPU')
     
     return
-    
+
+def get_data_loader(cfg, split):
+
+    return get_data_loader_(cfg,split)
+
 
 def get_corpus(cfg):
     data_dir = cfg['data_dir']
@@ -56,13 +55,12 @@ def get_model(cfg,lookup_l,embedding_l):
     return model
 
 
-def get_optimizer(cfg, model):
-    """ Create an optimizer. """
+def get_optimizer(cfg):
 
     if cfg["optimizer"] == "adam":
-        optimizer = None #optim.Adam(params=model.parameters(
-        #), lr=cfg["lr"],  weight_decay=cfg["weight_decay"])
+        optimizer = tf.keras.optimizers.Adam(lr=cfg["lr"])
     else:
         raise NotImplementedError('optimizer not implemented')
 
     return optimizer
+
