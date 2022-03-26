@@ -7,15 +7,15 @@ from tensorflow.math import reduce_sum
 
 
 class DeepmojiNet(Model):
-    def __init__(self,lookup_layer,embedding_layer,out_dim):
+    def __init__(self,cfg,lookup_layer,embedding_layer):
         super().__init__()
         self.lookup_layer = lookup_layer
         self.embedding_layer = embedding_layer
-        self.lstm1 = Bidirectional(LSTM(units=512,return_sequences=True))
-        self.lstm2 = Bidirectional(LSTM(units=512,return_sequences=True))
+        self.lstm1 = Bidirectional(LSTM(units=cfg['lsmt_hidden_size'],return_sequences=True))
+        self.lstm2 = Bidirectional(LSTM(units=cfg['lsmt_hidden_size'],return_sequences=True))
         self.dense1 = Dense(units=1, activation='relu')
         self.dense2 = Dense(units=128, activation='relu')
-        self.dense3 = Dense(units=out_dim, activation=None)
+        self.dense3 = Dense(units=cfg['out_dim'], activation=None)
 
     def call(self,x):
         idx = self.lookup_layer(x)
