@@ -1,6 +1,3 @@
-from parso import split_lines
-from torch import ge
-from transformers import KerasMetricCallback
 import yaml
 import os
 import pandas as pd
@@ -31,9 +28,9 @@ def set_device(cfg):
     
     return
 
-def get_data_loader(cfg, split):
+def get_data_loader(cfg, lookup_l, split):
 
-    return get_data_loader_(cfg,split)
+    return get_data_loader_(cfg,lookup_l, split)
 
 
 def get_corpus(cfg):
@@ -45,10 +42,10 @@ def get_corpus(cfg):
     
     return cleaned_texts
 
-def get_model(cfg,lookup_l,embedding_l):
+def get_model(cfg,embedding_l):
     if cfg["model"] == "DeepmojiNet":
         # if get_model only takes cfg, then define set() in DeepmojiNet and set lookup and embedding in train() 
-        model = DeepmojiNet(cfg=cfg,lookup_layer=lookup_l,embedding_layer=embedding_l)
+        model = DeepmojiNet(cfg=cfg,embedding_layer=embedding_l)
     else:
         raise NotImplementedError('Model not implemented')
 
@@ -58,7 +55,9 @@ def get_model(cfg,lookup_l,embedding_l):
 def get_optimizer(cfg):
 
     if cfg["optimizer"] == "adam":
-        optimizer = tf.keras.optimizers.Adam(lr=cfg["lr"])
+        optimizer = tf.keras.optimizers.Adam(learning_rate=cfg["learning_rate"])
+    elif cfg["optimizer"] == "rmsprop":
+        optimizer = tf.keras.optimizers.RMSprop(learning_rate=cfg["learning_rate"])
     else:
         raise NotImplementedError('optimizer not implemented')
 

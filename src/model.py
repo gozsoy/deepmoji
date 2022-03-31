@@ -4,12 +4,13 @@ from tensorflow.keras.initializers import Constant
 from tensorflow.keras import Model
 from tensorflow.keras.activations import softmax
 from tensorflow.math import reduce_sum
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
 class DeepmojiNet(Model):
-    def __init__(self,cfg,lookup_layer,embedding_layer):
+    def __init__(self,cfg,embedding_layer):
         super().__init__()
-        self.lookup_layer = lookup_layer
+        self.cfg = cfg
         self.embedding_layer = embedding_layer
         self.lstm1 = Bidirectional(LSTM(units=cfg['lsmt_hidden_size'],return_sequences=True))
         self.lstm2 = Bidirectional(LSTM(units=cfg['lsmt_hidden_size'],return_sequences=True))
@@ -18,8 +19,7 @@ class DeepmojiNet(Model):
         self.dense3 = Dense(units=cfg['out_dim'], activation=None)
 
     def call(self,x):
-        idx = self.lookup_layer(x)
-        embs = self.embedding_layer(idx)
+        embs = self.embedding_layer(x)
         # put F.tanh here?
 
         hiddens1 = self.lstm1(embs)
