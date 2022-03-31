@@ -15,7 +15,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, \
 from utils import get_data_loader, load_config
 from utils import get_model, get_corpus, get_optimizer
 from utils import set_device, set_seeds
-
+from utils import F1Score,Precision,Recall
 
 def prepare_embeddings(cfg):
 
@@ -74,8 +74,12 @@ def train(cfg,lookup_layer,embedding_layer):
     early_stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=2)
     lr_scheduler = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=3, verbose=1)
     
+    precision = Precision(from_logits=True,name='precision')
+    recall = Recall(from_logits=True,name='recall')
+    f1_score = F1Score(from_logits=True,name='f1_score')
+    metrics = [precision,recall,f1_score]
 
-    model.compile(optimizer=optimizer, loss=loss, metrics='accuracy')
+    model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
     model.fit(x = train_ds, epochs=cfg['n_epochs'], verbose=2, shuffle=True,
               callbacks=[early_stopper,lr_scheduler,checkpointer,tensorboard], validation_data=valid_ds)
