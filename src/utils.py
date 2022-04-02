@@ -29,9 +29,9 @@ def set_device(cfg):
     
     return
 
-def get_data_loader(cfg, lookup_l, split):
+def get_data_loader(cfg, lookup_l,embedding_l, split):
 
-    return get_data_loader_(cfg,lookup_l, split)
+    return get_data_loader_(cfg,lookup_l,embedding_l, split)
 
 
 def get_corpus(cfg):
