@@ -6,7 +6,7 @@ import tensorflow.keras.metrics as tfm
 import numpy as np
 import random
 
-from model import DeepmojiNet
+from model import DeepmojiNet,DeepmojiBasedClassifier,BertBasedClassifier
 from dataset import get_data_loader_
 
 def load_config(args):
@@ -43,10 +43,13 @@ def get_corpus(cfg):
 
     return cleaned_texts
 
-def get_model(cfg,embedding_l):
+def get_model(cfg):
     if cfg["model"] == "DeepmojiNet":
-        # if get_model only takes cfg, then define set() in DeepmojiNet and set lookup and embedding in train() 
-        model = DeepmojiNet(cfg=cfg,embedding_layer=embedding_l)
+        model = DeepmojiNet(cfg=cfg)
+    elif cfg["model"] == "DeepmojiBasedClassifier":
+        model = DeepmojiBasedClassifier(cfg=cfg)
+    elif cfg["model"] == "BertBasedClassifier":
+        model = BertBasedClassifier(cfg=cfg)
     else:
         raise NotImplementedError('Model not implemented')
 
@@ -182,6 +185,6 @@ class F1Score(tf.keras.metrics.Metric):
         r = self.recall.result()
         return (2 * p * r) / (p + r + tf.keras.backend.epsilon())
 
-    def reset_states(self):
+    def reset_state(self):
         self.precision.reset_states()
         self.recall.reset_states()

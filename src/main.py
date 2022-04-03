@@ -16,7 +16,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, \
 from utils import get_data_loader, load_config
 from utils import get_model, get_corpus, get_optimizer
 from utils import set_device, set_seeds
-from utils import F1Score,Precision,Recall
+from utils import F1Score
 
 def prepare_embeddings(cfg):
 
@@ -82,10 +82,11 @@ def prepare_embeddings(cfg):
 def train(cfg,lookup_layer,embedding_layer):
     
     train_ds = get_data_loader(cfg,lookup_layer,embedding_layer,split=0)
-    print(f'train_ds ready for training')
+    print(f'train_ds ready')
     valid_ds = get_data_loader(cfg,lookup_layer,embedding_layer,split=1)
-    print(f'valid_ds ready for training')
-    #test_ds = get_data_loader(cfg,lookup_layer,split=2)
+    print(f'valid_ds ready')
+    test_ds = get_data_loader(cfg,lookup_layer,embedding_layer,split=2)
+    print(f'test_ds ready')
     
 
     model = get_model(cfg)
@@ -107,8 +108,8 @@ def train(cfg,lookup_layer,embedding_layer):
     model.fit(x = train_ds, epochs=cfg['n_epochs'], verbose=1, shuffle=True,
               callbacks=[early_stopper,lr_scheduler,checkpointer,tensorboard], validation_data=valid_ds)
 
-    #model.load_weights(os.path.join(main_dir,'checkpoints',cfg['dataset'],cfg['experiment_name']))  # load the best model
-    #model.evaluate(x=test_ds)
+    model.load_weights(os.path.join(main_dir,'checkpoints',cfg['dataset'],cfg['experiment_name']))  # load the best model
+    model.evaluate(x=test_ds)
 
     return
 
