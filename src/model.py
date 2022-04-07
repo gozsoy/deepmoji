@@ -7,7 +7,7 @@ from tensorflow.keras.activations import softmax
 from tensorflow.math import reduce_sum
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-from transformers import DistilBertTokenizerFast,TFDistilBertModel
+from transformers import TFDistilBertModel
 
 # base model for pretraining
 class DeepmojiNet(Model):
@@ -43,13 +43,14 @@ class DeepmojiBasedClassifier(Model):
         self.cfg = cfg
 
         self.base = DeepmojiNet(cfg)
-        self.base.trainable = False
+        if cfg['freeze_base']:
+            self.base.trainable = False
         self.base(tf.random.normal(shape=(1,cfg['max_sentence_length'],cfg['embedding_size']))) #initialize base model weights
         main_dir,_ = os.path.split(cfg['data_dir'])
         self.base.load_weights(os.path.join(main_dir,'checkpoints','amazon-polarity',cfg['pretraining_experiment_name']))
  
+        self.dense1 = Dense(units=128, activation='relu')
         self.dense2 = Dense(units=128, activation='relu')
-        self.dense2_2 = Dense(units=128, activation='relu')
         self.dense3 = Dense(units=cfg['out_dim'], activation=None)
 
 
@@ -64,8 +65,8 @@ class DeepmojiBasedClassifier(Model):
         att_weights = softmax(o,axis=1)
         sent_repr = reduce_sum(word_repr * att_weights,axis=1)
 
-        output = self.dense2(sent_repr)
-        output = self.dense2_2(output)
+        output = self.dense1(sent_repr)
+        output = self.dense2(output)
         output = self.dense3(output)
         
         return output
@@ -76,18 +77,18 @@ class BertBasedClassifier(Model):
     def __init__(self,cfg):
         super().__init__()
         self.cfg = cfg
-        #self.tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
+
         self.distilbert_base = TFDistilBertModel.from_pretrained("distilbert-base-uncased")
 
-        for layer in self.distilbert_base.layers:
-            layer.trainable = False
+        if cfg['freeze_base']:
+            for layer in self.distilbert_base.layers:
+                layer.trainable = False
 
         self.dense1 = Dense(units=128, activation='relu')
         self.dense2 = Dense(units=1, activation=None)
 
     def call(self,x):
-        #print(x)
-        #encoded_input = self.tokenizer(text=x,max_length=self.cfg['max_sentence_length'],padding=True,truncation=True, return_tensors='tf')
+ 
         output = self.distilbert_base(input_ids=x[0],attention_mask=x[1])
 
         last_hidden_state = output[0]
