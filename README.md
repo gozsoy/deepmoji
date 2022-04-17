@@ -7,8 +7,17 @@ for detecting sentiment, emotion and sarcasm](https://arxiv.org/pdf/1708.00524.p
 cd src
 python main.py --config ../config_{bert|deepmoji}.yaml
 ```
-
 ### Explanation
+
+<table align='right'>
+<tr align='center'>
+<td> Model </td>
+</tr>
+<tr>
+<td><img src="model.png" height="320px">
+</tr>
+</table>
+
 
 Deepmoji model is a pre-trained base which is able to generalize well on text classification tasks. The model is as on fig xx. The authors use emoji classification for model's pre-training and fine-tune it more on downstream tasks' small scale datasets. It is a nice example of representation learning for text which is nowadays best performed by transformer based language models such as BERT.
 
