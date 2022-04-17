@@ -2,7 +2,7 @@
 device: cpu  # {gpu | cpu}
 
 #experiment:
-experiment_name: deepmoji_base_deneme  # format: {deepmoji|_transfer}_{base|pretraining}_{freeze}_{lstm}_{classifier_head_arch}
+experiment_name: deepmoji_base_deneme  # format: {deepmoji|_transfer}_{base|pretraining}_{freeze}_{lstm}_{classifier_head_arch}_{preprocess_type}
                               # -> deepmoji_base_lstm512_cls128_128_1 (plain deepmoji on kaggle-insult)
                               # -> deepmoji_pretraining_lstm512_cls128_128_1 (plain deepmoji on amazon-polarity)
                               # -> deepmoji_transfer_freezeTrue_lstm512_cls128_128_1 (deepmoji classifier on kaggle-insult)

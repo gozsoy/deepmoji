@@ -77,10 +77,11 @@ def prepare_embeddings(cfg):
 
     data_dir = cfg['data_dir']
     dataset = cfg['dataset']
+    preprocess_type = cfg['preprocess_type']
 
     # create lookup layer
     if cfg['load_vocabulary']:
-        with open(os.path.join(data_dir,dataset,'processed_voc'), "rb") as fp:
+        with open(os.path.join(data_dir,dataset,'processed_voc_'+preprocess_type), "rb") as fp:
             processed_voc = pickle.load(fp)
         lookup_layer = StringLookup(vocabulary=processed_voc,mask_token='[MASK]')
         print(f'Loaded string lookup layer')
@@ -95,7 +96,7 @@ def prepare_embeddings(cfg):
 
     # create embedding matrix
     if cfg['load_embeddings']:
-        embedding_matrix = np.load(os.path.join(data_dir,dataset,'embedding_matrix.npy'))  
+        embedding_matrix = np.load(os.path.join(data_dir,dataset,'embedding_matrix_'+preprocess_type+'.npy'))  
         print(f'Loaded embedding matrix')
     else:
         if cfg['embedding_type']== 'spacy':

@@ -2,7 +2,7 @@
 device: cpu  # {gpu | cpu}
 
 #experiment:
-experiment_name: bert_freeze_True_128  # format: bert_{freeze}_{classifier_head_arch} # -> bert_freezeTrue_cls128_1
+experiment_name: bert_freeze_True_128  # format: bert_{freeze}_{classifier_head_arch}_{preprocess_type} # -> bert_freezeTrue_cls128_1
 
 # data:
 data_dir: ../data
